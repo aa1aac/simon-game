@@ -1,0 +1,57 @@
+body{
+    font-family: 'Bowlby One SC',cursive;
+    background: #1488CC;
+    /* fallback for old browsers */
+
+    background: -webkit-linear-gradient(to right, #2B32B2, #1488CC);
+    /* Chrome 10-25, Safari 5.1-6 */
+
+    background: linear-gradient(to right, #2B32B2, #1488CC);
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+  color:white;
+}
+#gamebody{
+    text-align: center;
+    align-content: center;
+    align-items: center;
+    margin-top:2%;
+    margin-left:30%;
+}
+.simon{
+    height:70px;
+    width:70px;
+    cursor: pointer; 
+    border-radius:100%;
+    margin:10%;   
+}
+#red{
+    border:9px darkred solid;
+}
+#yellow {
+      border:9px goldenrod solid;
+}
+#green {
+    border:9px darkgreen solid;
+}
+#blue {
+      border:9px darkblue solid;
+}
+
+.count{
+    background-color: rgba(20, 16, 16, 0.849);
+    border-radius: 10px;
+    height:40px;
+    color:white;
+    padding: 5px;
+}
+.inner{
+    margin-right:50%;
+}
+h1{
+    text-align: center;
+}
+.bottom{
+    margin-left:25%;
+}
+
