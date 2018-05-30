@@ -37,7 +37,18 @@ body{
 #blue {
       border:9px darkblue solid;
 }
-
+#red:active{
+    background-color: red;
+}
+#yellow:active{
+    background-color: yellow;
+}
+#green:active{
+    background-color:green;
+}
+#blue:active{
+    background-color: blue;
+}
 .count{
     background-color: rgba(20, 16, 16, 0.849);
     border-radius: 10px;

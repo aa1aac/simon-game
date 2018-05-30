@@ -1,29 +1,27 @@
-// define variables
-
-
-// defination of simon object
+// defination of simon object for game body
 var simon={
  count:0,
  colorPossibilities :["red", "yellow", "green", "blue"],
  randomMoves:[],
  movesByPlayer:[],
  simpleColorsIndex:[],
- strictMode:false
+ strictMode:false,
+ sound:{
+    red: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound1.mp3'), 
+    yellow: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound2.mp3'), 
+    green: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound3.mp3'), 
+    blue: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound4.mp3')
+  },
 }
 $(".start").click(function (){
   setTimeout(game(),2000);
+ 
 })
 $(".strict").click(function(){
     simon.strictMode=true;
     setTimeout(game(), 2000);
 })
-
 function game() {
-    $(".simon").click(function (){
-        var a=this.id;
-        playAudio(a);
-        
-    })
     gameStart();
 }
 
@@ -38,7 +36,9 @@ function gameStart() {
 
 function count(){
   simon.count++;
-  $(".count").html(simon.count);
+  setTimeout(function (){
+    $(".count").html(simon.count);
+  },300)
   newMoves();
 }
 function newMoves() {
@@ -47,7 +47,9 @@ function newMoves() {
     simon.randomMoves.push(simon.colorPossibilities[randomIndex]);
     displayMoves();
     console.log(simon.simpleColorsIndex);
+    console.log(simon.randomMoves);
 }
+
 
 function displayMoves() {
    var i=0;
@@ -57,12 +59,10 @@ function displayMoves() {
        
       if (i>=simon.randomMoves.length){
           clearInterval(moves);
-          
-      }
+          }
        
-   },100)
-   
-  clearPlayer();
+   },1000)
+   clearPlayer();
 }
 
 function playGame(nameOfColor,colorIndex){
@@ -74,49 +74,65 @@ function playGame(nameOfColor,colorIndex){
     playAudio(nameOfColor);
 }
 function playAudio(nameOfColor){
-    var audio = document.querySelector("."+nameOfColor)
-    audio.play();
+    switch(nameOfColor){
+        case "red":
+         simon.sound.red.play();
+         break;
+        case "yellow":
+          simon.sound.yellow.play();
+          break;
+        case "green":
+          simon.sound.green.play();
+          break;
+        case "blue":
+          simon.sound.blue.play();
+          break;
+    }
 }
 function removeColor(color){
     setTimeout(function () {
         $("." + color).css({
             backgroundColor: "inherit"
         })
-    }, 300)
-   
+    }, 400) 
 }
 function clearPlayer(){
-  simon.movesByPlayer=[]
+  simon.movesByPlayer=[];
   addPlayer();
 }
-
+var arr=[];
 function addPlayer(){
-    var arr=[];
   $(".simon").click(function(){
-      playerTurn();
-  })
+      arr.push(this.id)
+      
+})
+  setTimeout(function (){
+    playerTurn(arr);
+  },1000)
 }
-function playerTurn(){
-    var field = this.id;
-   if(simon.strictMode===false){
-       if (field=simon.randomMoves){
-           count();
-       }
-       else{setTimeout(function () {
-           displayMoves();
-       },1000)}
-   
-   }
-   else if (simon.strictMode === true) {
-        if (field===simon.randomMoves){
-           count();
+function playerTurn(arr){
+    if (simon.movesByPlayer[simon.movesByPlayer.length - 1] !== simon.randomMoves[simon.movesByPlayer.length - 1]) {
+     if(game.strict){
+          alert('Try again! ...From scratch!');
+          game();
+        } else {
+          alert('Wrong move! Try again!');
+          displayMoves();
         }
-        else{
-            $(".count").html("!!!");
-            setTimeout(() => {
-                game(); 
-            }, 1000);
-            
+       } else {
+          console.log('Good Move!');
+          playAudio(simon.sound.arr);
+          var check = game.movesByPlayer.length === game.currentGame.length;
+          if (check) {
+            if(game.count == 20){
+              alert('You won! Congrats.');
+            } else {
+              alert('Next round!');
+              nextLevel();
+            }
+          }
         }
-   }
+}
+function nextLevel(){
+    count();
 }
