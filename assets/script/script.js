@@ -1,207 +1,162 @@
-// variables for game defined
- var simonSeq=[0,1,2,3]; //stores random sequence generated
- var userSeq=[]; //stores input by the user
- var id=0;
- var color=0;
- var level=0;
- var boardSound=[
+//variables declared
+userSeq = [];
+simonSeq = [];
+const maxLevel = 20;
+var id, color, level = 0;
+var strict = false;
+var error = false; 
+var boardSound=[
   'https://s3.amazonaws.com/freecodecamp/simonSound1.mp3',// for red 0 
-  'https://s3.amazonaws.com/freecodecamp/simonSound2.mp3', //yelllow
-  'https://s3.amazonaws.com/freecodecamp/simonSound3.mp3', //green
-  'https://s3.amazonaws.com/freecodecamp/simonSound4.mp3'  //blue
- ]
- // start the game when window is loaded
-$(document).ready(function(){
-  // add event listener to the start button
-  $('.start').click(function(){
+  'https://s3.amazonaws.com/freecodecamp/simonSound2.mp3', //yelllow 1
+  'https://s3.amazonaws.com/freecodecamp/simonSound3.mp3', //green  2
+  'https://s3.amazonaws.com/freecodecamp/simonSound4.mp3'  //blue  3
+ ];
+//start board sequence
+$(document).ready(function() {
+  $(".start").click(function() {
+    strict = false;
+    error = false;
+    level = 0;
     level++;
-      startSequence();
+    simonSeq = []
+    userSeq = [];
+    simonSequence();
   })
-
-  // click for input 
-  $(".simon").click(function()
-  {
-    id= $(this).attr("id");
-    color=$(this).attr("class").split(" ")[1];
-    addClassSound(id,color);
-    userSeq.push(id);
+  //user's strict mode click listener
+  $(".simon").click(function() {
+    id = $(this).attr("id");
+    color = $(this).attr("class").split(" ")[1];
+    userSequence();
+  });
+  //strict mode listener
+  $(".strict").click(function() {
+    level = 0;
+    level++;
+    simonSeq = []
+    userSeq = [];
+    strict = true;    
+    simonSequence();
   })
 })
-
-
-
-// defination of startSequence function
-function startSequence(){
-  console.log(level);
-   $(".count").text(level);
-  //  getRandomNum();
-   var i=0;
-   var interval=setInterval(function(){
-     id= simonSeq[i];
-     color=$('#'+id).attr('class').split(" ")[1];
-     console.log(id+" "+color);
-     addClassSound(id,color);
-     if (i=simonSeq.length){
-        clearInterval(interval);
-     }
-   },1000);
+//user sequence
+function userSequence() {
+  userSeq.push(id);
+    addClassSound(id, color);
+    //check user sequence
+    if(!checkUserSeq()) {
+      //if playing strict mode reset everything lol
+      if(strict) {
+        simonSeq = [];
+        level = 1;
+      }   
+      error = true;   
+      displayError();
+      userSeq = [];      
+      simonSequence();
+    }
+    //check end of sequence
+    else if(userSeq.length == simonSeq.length && userSeq.length < maxLevel) {
+      level++;
+      userSeq = [];
+      error = false;
+      simonSequence();
+    }
+    //check for the winner
+    if(userSeq.length == maxLevel) {
+      displayWinner();
+      resetGame();
+    }     
+  
 }
 
-// function to get random number for index;
- function getRandomNum(){
-   var num=Math.floor(Math.random()*4);
-   simonSeq.push(num);
- }
-
- // function for class sound
- function addClassSound(id,color){
+/* simon sequence */
+function simonSequence() {
+  console.log("level "+level);
+  $(".count").text(level);
+  if(!error) {
+    getRandomNum();
+  }
+  if(error && strict) {
+    alert("game Over!!!! sorry you clicked The wrong One!!!!");
+    alert("The game Starts from The scratch")
+    getRandomNum();
+  
+  }  
+  var i = 0;
+  var interval = setInterval(function() {
+    id = simonSeq[i];
+    color = $("#"+id).attr("class");
+    color = color.split(" ")[1];
+    console.log(id+" "+color);
+    addClassSound(id, color);
+    i++;
+    if(i == simonSeq.length) {
+      clearInterval(interval);
+    } 
+  }, 1000);  
+}
+//generate random number for random simon sequence
+function getRandomNum() {
+  var random = Math.floor(Math.random() * 4);
+  simonSeq.push(random);
+}
+/* add temporary class and sound  */
+function addClassSound(id, color) {
   $("#"+id).addClass(color+"-active");
   playSound(id);
   setTimeout(function(){
-       $("#"+id).removeClass(color+"-active");
-  },200)
- }
-
- //play sound function
- function playSound(id){
-
- }
-/*// defination of simon object for game body
-var simon={
- count:0,
- colorPossibilities :["red", "yellow", "green", "blue"],
- randomMoves:[],
- movesByPlayer:[],
- simpleColorsIndex:[],
- strictMode:false,
- sound:{
-    red: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound1.mp3'), 
-    yellow: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound2.mp3'), 
-    green: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound3.mp3'), 
-    blue: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound4.mp3')
-  },
+    $("#"+id).removeClass(color+"-active");
+  }, 500);
 }
-$(".start").click(function (){
-  setTimeout(game(),1000);
- 
-})
-$(".strict").click(function(){
-    simon.strictMode=true;
-    setTimeout(game(), 1000);
-})
-function game() {
-    gameStart();
-}
-
-function gameStart() {
-    simon.count=0;
-    simon.movesByPlayer=[];
-    simon.randomMoves=[];
-    simon.simpleColorsIndex=[];
-    console.log(simon);
-    count();
-}
-
-function count(){
-  simon.count++;
-  setTimeout(function (){
-    $(".count").html(simon.count);
-  },300)
-  newMoves();
-}
-function newMoves() {
-    var randomIndex=Math.floor(Math.random() * 4);
-    simon.simpleColorsIndex.push(randomIndex);
-    simon.randomMoves.push(simon.colorPossibilities[randomIndex]);
-    displayMoves();
-    console.log(simon.simpleColorsIndex);
-    console.log(simon.randomMoves);
-}
-
-
-function displayMoves() {
-   var i=0;
-   var moves=setInterval(function(){
-     playGame(simon.randomMoves[i],simon.simpleColorsIndex[i]);
-     i++;
-       
-      if (i>=simon.randomMoves.length){
-          clearInterval(moves);
-          }
-       
-   },1000)
-   clearPlayer();
-}
-
-function playGame(nameOfColor,colorIndex){
-    removeColor(colorIndex);
-    $("."+colorIndex).css({
-        backgroundColor:nameOfColor
-    })
-
-    playAudio(nameOfColor);
-}
-function playAudio(nameOfColor){
-    switch(nameOfColor){
-        case "red":
-         simon.sound.red.play();
-         break;
-        case "yellow":
-          simon.sound.yellow.play();
-          break;
-        case "green":
-          simon.sound.green.play();
-          break;
-        case "blue":
-          simon.sound.blue.play();
-          break;
+/* checking user seq against simon sequence */
+function checkUserSeq() {
+  for(var i = 0; i < userSeq.length; i++) {
+    if(userSeq[i] != simonSeq[i]) {      
+      return false;
     }
+  }
+  return true;
 }
-function removeColor(color){
-    setTimeout(function () {
-        $("." + color).css({
-            backgroundColor: "inherit"
-        })
-    }, 400) 
+/* display error  */
+function displayError() { 
+  var counter = 0;
+  $(".count").text("!!");
+  var error = setInterval(function() {
+    
+    counter++;
+    if(counter == 3) {
+      $(".count").text(level);
+      clearInterval(error);
+      userSeq = [];
+      counter = 0;
+    }
+  }, 500);
 }
-function clearPlayer(){
-  simon.movesByPlayer=[];
-  addPlayer();
+//display winner 
+function displayWinner() {
+  var count = 0;
+  var winInterval = setInterval(function() { 
+    count++;
+    $(".count").text("Win");
+    alert("congrats You Win")
+    if(count == 5) {
+      clearInterval(winInterval);
+      $(".display").text("00");
+      count = 0;
+    }
+  }, 500);
 }
-var arr=[];
-function addPlayer(){
-  $(".simon").click(function(){
-      arr.push(this.id)
-      
-})
-  setTimeout(function (){
-    playerTurn(arr);
-  },1000)
+// play board sound 
+function playSound(id) {
+  var sound = new Audio(boardSound[id]);
+  sound.play();
 }
-function playerTurn(arr){
-    if (simon.movesByPlayer[simon.movesByPlayer.length - 1] !== simon.randomMoves[simon.movesByPlayer.length - 1]) {
-     if(game.strict){
-          alert('Try again! ...From scratch!');
-          game();
-        } else {
-          alert('Wrong move! Try again!');
-          displayMoves();
-        }
-       } 
-       else {
-          console.log('Good Move!');
-           playAudio(simon.sound.arr)
-          var check = simon.movesByPlayer.length === simon.randomMoves.length;
-          if (check) {
-            if(simon.count == 20){
-              alert('You won! Congrats.');
-            } else {
-              alert('Next round!');
-              nextLevel();
-            }
-          }
-        }
+
+/* reset game */
+function resetGame() {
+  userSeq = [];
+  simonSeq = [];
+  level = 0;
+  $(".display").text("00");
+   
 }
-function nextLevel(){
-    count();
-}*/
